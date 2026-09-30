@@ -125,3 +125,7 @@
 .profiler-error {
   color: #d04545;
 }
+
+.profiler-loading {
+  color: var(--text-faint);
+}

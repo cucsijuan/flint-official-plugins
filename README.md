@@ -5,6 +5,7 @@ Plugins for [Flint](https://github.com/cucsijuan/flint), one folder each. Instal
 | Plugin | What it does |
 | --- | --- |
 | [Jira](jira) | Jira issues in your notes: tables from JQL queries, your issues in the sidebar, creating issues, comments and worklogs, with edits pushed only when you ask. |
+| [Profiler](profiler) | Timelines of profiling captures (Perfetto / Chrome trace JSON) in your notes: threads, nested zones by category, frames, zoom and range statistics, for captures of any size. |
 | [Counter](counter) | Turns ` ```counter ` code blocks into a button that counts clicks in the note itself. |
 | [Word count](word-count) | Word and character counts for the current note, and a command that inserts today's date. |
 

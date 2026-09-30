@@ -34,10 +34,9 @@ describe('parseTrace', () => {
 
   it('pairs begin and end events', () => {
     const render = capture.tracks[1]
-    expect(render.rows.map((row) => row.map((zone) => `${zone.name} ${zone.start}-${zone.end}`))).toEqual([
-      ['Draw 5-80'],
-      ['Shadows 15-35'],
-    ])
+    expect(
+      render.rows.map((row) => row.map((zone) => `${zone.name} ${zone.start}-${zone.end}`)),
+    ).toEqual([['Draw 5-80'], ['Shadows 15-35']])
   })
 
   it('collects categories, frames and the time span', () => {

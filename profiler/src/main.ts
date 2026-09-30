@@ -1,4 +1,5 @@
 import type { ActivatePlugin } from 'flint-plugin-api'
+import { isManifest, PieceSource } from './pieces'
 import { memorySource, Timeline } from './timeline'
 import { parseTrace } from './trace'
 
@@ -35,8 +36,16 @@ const activate: ActivatePlugin = (flint) => {
     }
     element.textContent = `Loading ${file}…`
     try {
-      const capture = parseTrace(JSON.parse(await flint.vault.read(file)), { frameMarker: frames })
-      const timeline = new Timeline(memorySource(capture))
+      const isFolder =
+        file.endsWith('/') || file.endsWith('manifest.json') || !file.endsWith('.json')
+      const folder = file.replace(/\/?(manifest\.json)?$/, '')
+      const json: unknown = JSON.parse(
+        await flint.vault.read(isFolder ? `${folder}/manifest.json` : file),
+      )
+      const source = isManifest(json)
+        ? new PieceSource(json, (piece) => flint.vault.read(`${folder}/${piece}`))
+        : memorySource(parseTrace(json, { frameMarker: frames }))
+      const timeline = new Timeline(source)
       element.replaceChildren(timeline.element)
       whenRemoved(element, () => timeline.destroy())
     } catch (error) {

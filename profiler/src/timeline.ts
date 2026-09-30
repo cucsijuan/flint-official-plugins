@@ -1,4 +1,12 @@
-import { type Capture, firstEndingAfter, formatDuration, rangeStats, type Track, type Zone, zoneAt } from './trace'
+import {
+  type Capture,
+  firstEndingAfter,
+  formatDuration,
+  rangeStats,
+  type Track,
+  type Zone,
+  zoneAt,
+} from './trace'
 
 /** Where the timeline gets its zones: all in memory, or loaded piece by piece. */
 export interface ZoneSource {
@@ -11,6 +19,12 @@ export interface ZoneSource {
   /** Asks for the zones of `[from, to)`; the source calls `onChange` once more of them are in. */
   request?: (from: number, to: number) => void
   onChange?: (listener: () => void) => void
+  /** Whether zones can be shown for `[from, to)`; otherwise tracks show their overview. */
+  hasDetail?: (from: number, to: number) => boolean
+  /** Length of each overview bucket, for tracks that carry an `overview`. */
+  overviewBucket?: number
+  /** A short note about loading, shown in the toolbar. */
+  status?: string
 }
 
 export function memorySource(capture: Capture): ZoneSource {
@@ -26,11 +40,22 @@ const MAX_VISIBLE_HEIGHT = 560
 const DRAG_THRESHOLD = 3
 const ZOOM_STEP = 1.5
 const PALETTE = [
-  '#4e79a7', '#f28e2b', '#59a14f', '#e15759', '#b07aa1', '#76b7b2',
-  '#edc948', '#ff9da7', '#9c755f', '#86bcb6', '#d37295', '#a0cbe8',
+  '#4e79a7',
+  '#f28e2b',
+  '#59a14f',
+  '#e15759',
+  '#b07aa1',
+  '#76b7b2',
+  '#edc948',
+  '#ff9da7',
+  '#9c755f',
+  '#86bcb6',
+  '#d37295',
+  '#a0cbe8',
 ]
 
-const hashOf = (text: string) => [...text].reduce((hash, char) => (hash * 31 + char.charCodeAt(0)) | 0, 7)
+const hashOf = (text: string) =>
+  [...text].reduce((hash, char) => (hash * 31 + char.charCodeAt(0)) | 0, 7)
 
 interface Layout {
   track: Track
@@ -46,6 +71,7 @@ export class Timeline {
   private readonly tooltip: HTMLElement
   private readonly stats: HTMLElement
   private readonly legend: HTMLElement
+  private readonly status: HTMLElement
   /** Resolves theme colors, which are CSS variables like `light-dark(…)`, to plain colors. */
   private readonly probe: HTMLElement
   private viewStart: number
@@ -61,7 +87,9 @@ export class Timeline {
   constructor(private readonly source: ZoneSource) {
     this.viewStart = source.start
     this.viewEnd = source.end > source.start ? source.end : source.start + 1
-    source.categories.forEach((category, index) => this.colors.set(category, PALETTE[index % PALETTE.length]))
+    source.categories.forEach((category, index) =>
+      this.colors.set(category, PALETTE[index % PALETTE.length]),
+    )
 
     this.element = element('div', 'profiler')
     const toolbar = element('div', 'profiler-toolbar')
@@ -74,9 +102,11 @@ export class Timeline {
       this.draw()
     })
     this.legend = element('div', 'profiler-legend')
+    this.status = element('span', 'profiler-loading')
     toolbar.append(
       search,
       this.legend,
+      this.status,
       button('−', 'Zoom out (S)', () => this.zoom(ZOOM_STEP)),
       button('+', 'Zoom in (W)', () => this.zoom(1 / ZOOM_STEP)),
       button('Fit', 'Show the whole capture (F)', () => this.fit()),
@@ -112,23 +142,21 @@ export class Timeline {
 
   private renderLegend() {
     this.legend.replaceChildren(
-      ...this.source.categories
-        .filter(Boolean)
-        .map((category) => {
-          const item = element('button', 'profiler-category')
-          item.title = 'Show or hide this category'
-          const swatch = element('span', 'profiler-swatch')
-          swatch.style.background = this.colors.get(category) ?? ''
-          item.append(swatch, category)
-          item.classList.toggle('is-hidden', this.hidden.has(category))
-          item.addEventListener('click', () => {
-            if (this.hidden.has(category)) this.hidden.delete(category)
-            else this.hidden.add(category)
-            this.renderLegend()
-            this.draw()
-          })
-          return item
-        }),
+      ...this.source.categories.filter(Boolean).map((category) => {
+        const item = element('button', 'profiler-category')
+        item.title = 'Show or hide this category'
+        const swatch = element('span', 'profiler-swatch')
+        swatch.style.background = this.colors.get(category) ?? ''
+        item.append(swatch, category)
+        item.classList.toggle('is-hidden', this.hidden.has(category))
+        item.addEventListener('click', () => {
+          if (this.hidden.has(category)) this.hidden.delete(category)
+          else this.hidden.add(category)
+          this.renderLegend()
+          this.draw()
+        })
+        return item
+      }),
     )
   }
 
@@ -148,7 +176,10 @@ export class Timeline {
     const span = Math.max(end - start, 0.001)
     const total = this.source.end - this.source.start
     const padding = total * 0.05
-    const clampedStart = Math.min(Math.max(start, this.source.start - padding), this.source.end + padding - span)
+    const clampedStart = Math.min(
+      Math.max(start, this.source.start - padding),
+      this.source.end + padding - span,
+    )
     this.viewStart = clampedStart
     this.viewEnd = clampedStart + span
     this.draw()
@@ -156,7 +187,10 @@ export class Timeline {
 
   zoom(factor: number, anchorX = this.width / 2) {
     const anchor = this.timeAt(anchorX)
-    this.setView(anchor - (anchor - this.viewStart) * factor, anchor + (this.viewEnd - anchor) * factor)
+    this.setView(
+      anchor - (anchor - this.viewStart) * factor,
+      anchor + (this.viewEnd - anchor) * factor,
+    )
   }
 
   private pan(pixels: number) {
@@ -242,7 +276,10 @@ export class Timeline {
       const zone = found.zone
       const args = zone.args
         ? Object.entries(zone.args)
-            .map(([key, value]) => `${key}: ${typeof value === 'object' ? JSON.stringify(value) : String(value)}`)
+            .map(
+              ([key, value]) =>
+                `${key}: ${typeof value === 'object' ? JSON.stringify(value) : String(value)}`,
+            )
             .join('\n')
         : ''
       this.tooltip.textContent = [
@@ -254,7 +291,10 @@ export class Timeline {
         .join('\n')
       this.tooltip.hidden = false
       const bounds = this.element.getBoundingClientRect()
-      const left = Math.min(event.clientX - bounds.left + 12, bounds.width - this.tooltip.offsetWidth - 4)
+      const left = Math.min(
+        event.clientX - bounds.left + 12,
+        bounds.width - this.tooltip.offsetWidth - 4,
+      )
       this.tooltip.style.left = `${Math.max(0, left)}px`
       this.tooltip.style.top = `${event.clientY - bounds.top + 16}px`
     })
@@ -308,6 +348,7 @@ export class Timeline {
     const width = this.width
     if (!width) return
     this.source.request?.(this.viewStart, this.viewEnd)
+    this.status.textContent = this.source.status ?? ''
     let top = RULER_HEIGHT
     this.layouts = this.source.tracks.map((track) => {
       const height = HEADER_HEIGHT + Math.max(track.rows.length, 1) * ROW_HEIGHT + TRACK_GAP
@@ -349,16 +390,48 @@ export class Timeline {
     }
   }
 
+  /** How busy a track is over time, drawn when there's too much in view to load its zones. */
+  private paintOverview(
+    context: CanvasRenderingContext2D,
+    { top, height }: Layout,
+    overview: number[],
+    width: number,
+    theme: Record<string, string>,
+  ) {
+    const bucket = this.source.overviewBucket ?? 1
+    const area = height - HEADER_HEIGHT - TRACK_GAP
+    const bottom = top + HEADER_HEIGHT + area
+    context.fillStyle = withAlpha(theme.accent, 0.55)
+    for (let x = 0; x < width; x++) {
+      const from = Math.floor((this.timeAt(x) - this.source.start) / bucket)
+      const to = Math.max(from + 1, Math.ceil((this.timeAt(x + 1) - this.source.start) / bucket))
+      let busy = 0
+      for (let index = Math.max(from, 0); index < Math.min(to, overview.length); index++) {
+        busy = Math.max(busy, overview[index])
+      }
+      if (busy > 0) context.fillRect(x, bottom - busy * area, 1, busy * area)
+    }
+    context.fillStyle = theme.muted
+    context.fillText('Zoom in to see zones', width - 130, top + HEADER_HEIGHT / 2)
+  }
+
   private resolve(variable: string, fallback: string) {
     this.probe.style.color = `var(${variable}, ${fallback})`
     return getComputedStyle(this.probe).color
   }
 
-  private paintRuler(context: CanvasRenderingContext2D, width: number, height: number, theme: Record<string, string>) {
+  private paintRuler(
+    context: CanvasRenderingContext2D,
+    width: number,
+    height: number,
+    theme: Record<string, string>,
+  ) {
     const span = this.viewEnd - this.viewStart
     const rough = (span / width) * 100
     const magnitude = Math.pow(10, Math.floor(Math.log10(rough)))
-    const step = [1, 2, 5, 10].map((factor) => factor * magnitude).find((candidate) => candidate >= rough) ?? rough
+    const step =
+      [1, 2, 5, 10].map((factor) => factor * magnitude).find((candidate) => candidate >= rough) ??
+      rough
     context.fillStyle = theme.header
     context.fillRect(0, 0, width, RULER_HEIGHT)
     context.strokeStyle = theme.border
@@ -384,11 +457,22 @@ export class Timeline {
     }
   }
 
-  private paintTrack(context: CanvasRenderingContext2D, { track, top }: Layout, width: number, theme: Record<string, string>) {
+  private paintTrack(
+    context: CanvasRenderingContext2D,
+    layout: Layout,
+    width: number,
+    theme: Record<string, string>,
+  ) {
+    const { track, top } = layout
     context.fillStyle = theme.header
     context.fillRect(0, top, width, HEADER_HEIGHT)
     context.fillStyle = theme.text
     context.fillText(track.name, 6, top + HEADER_HEIGHT / 2)
+    const overview = (track as Track & { overview?: number[] }).overview
+    if (overview && this.source.hasDetail && !this.source.hasDetail(this.viewStart, this.viewEnd)) {
+      this.paintOverview(context, layout, overview, width, theme)
+      return
+    }
     track.rows.forEach((row, depth) => {
       const y = top + HEADER_HEIGHT + depth * ROW_HEIGHT
       let lastPixel = -1

@@ -105,7 +105,8 @@ export function parseTrace(json: unknown, { frameMarker = 'Frame' }: ParseOption
       }
       case 'E': {
         const begin = openByTrack.get(trackId(event))?.pop()
-        if (begin) addZone({ ...begin, args: { ...begin.args, ...event.args } }, Number(begin.ts ?? 0), ts)
+        if (begin)
+          addZone({ ...begin, args: { ...begin.args, ...event.args } }, Number(begin.ts ?? 0), ts)
         break
       }
       case 'i':
@@ -190,7 +191,8 @@ export function rangeStats(tracks: Track[], from: number, to: number) {
 export function formatDuration(microseconds: number) {
   const value = Math.abs(microseconds)
   if (value >= 1_000_000) return `${(microseconds / 1_000_000).toFixed(2)} s`
-  if (value >= 1_000) return `${(microseconds / 1_000).toFixed(value >= 100_000 ? 0 : value >= 10_000 ? 1 : 2)} ms`
+  if (value >= 1_000)
+    return `${(microseconds / 1_000).toFixed(value >= 100_000 ? 0 : value >= 10_000 ? 1 : 2)} ms`
   if (value >= 1) return `${microseconds.toFixed(value >= 100 ? 0 : 1)} µs`
   return `${(microseconds * 1000).toFixed(0)} ns`
 }
