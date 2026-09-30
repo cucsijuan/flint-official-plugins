@@ -1,0 +1,127 @@
+.profiler {
+  position: relative;
+  display: grid;
+  gap: 6px;
+  font-size: 12px;
+}
+
+.profiler-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.profiler-search {
+  width: 160px;
+  padding: 3px 8px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--background-secondary);
+  color: var(--text);
+  font: inherit;
+}
+
+.profiler-legend {
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.profiler-category,
+.profiler-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--background-secondary);
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.profiler-button {
+  border-radius: 4px;
+}
+
+.profiler-category.is-hidden {
+  opacity: 0.4;
+  text-decoration: line-through;
+}
+
+.profiler-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+}
+
+.profiler-scroller {
+  overflow-x: hidden;
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.profiler-canvas {
+  display: block;
+  cursor: grab;
+  outline: none;
+}
+
+.profiler-canvas:active {
+  cursor: grabbing;
+}
+
+.profiler-tooltip {
+  position: absolute;
+  z-index: 10;
+  max-width: 360px;
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--background);
+  box-shadow: 0 4px 12px rgb(0 0 0 / 0.2);
+  color: var(--text);
+  white-space: pre-wrap;
+  pointer-events: none;
+}
+
+.profiler-stats {
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--background-secondary);
+}
+
+.profiler-stats-heading {
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+
+.profiler-stats-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.profiler-stats-table td {
+  padding: 1px 6px 1px 0;
+}
+
+.profiler-stats-table td:nth-child(2),
+.profiler-stats-table td:nth-child(3) {
+  color: var(--text-muted);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.profiler-probe {
+  position: absolute;
+  visibility: hidden;
+}
+
+.profiler-error {
+  color: #d04545;
+}

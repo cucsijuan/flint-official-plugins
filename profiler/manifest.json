@@ -1,0 +1,9 @@
+{
+  "id": "profiler",
+  "name": "Profiler",
+  "version": "0.1.0",
+  "author": "Flint contributors",
+  "description": "Timelines of profiling captures in your notes: threads, nested zones colored by category, frame markers, zoom, search and range statistics. Reads Perfetto / Chrome trace JSON, and captures of any size split into pieces.",
+  "license": "AGPL-3.0-or-later",
+  "minAppVersion": "0.12.0"
+}
