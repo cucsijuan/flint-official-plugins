@@ -1,0 +1,23 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  plugins:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - name: Check, test and build every plugin with a package.json
+        run: |
+          for manifest in */package.json; do
+            folder=$(dirname "$manifest")
+            echo "::group::$folder"
+            (cd "$folder" && npm install && npm run check && npm test --if-present && npm run build)
+            echo "::endgroup::"
+          done
