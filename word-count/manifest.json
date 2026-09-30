@@ -1,0 +1,8 @@
+{
+  "id": "word-count",
+  "name": "Word count",
+  "version": "1.0.0",
+  "author": "Flint contributors",
+  "description": "Shows word and character counts for the current note, and inserts today's date.",
+  "license": "AGPL-3.0-or-later"
+}

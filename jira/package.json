@@ -1,0 +1,18 @@
+{
+  "name": "flint-jira",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "esbuild src/main.ts --bundle --format=esm --target=es2022 --outfile=main.js",
+    "dev": "esbuild src/main.ts --bundle --format=esm --target=es2022 --outfile=${FLINT_PLUGIN_DIR:-.}/main.js --watch",
+    "check": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.0",
+    "flint-plugin-api": "^0.12.0",
+    "typescript": "^5.9.0",
+    "vitest": "^5.0.0"
+  }
+}

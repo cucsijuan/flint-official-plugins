@@ -1,0 +1,48 @@
+name: Release
+
+# Tag a plugin as <folder>-<version>, like jira-0.1.0; a suffix like -rc.1 makes a pre-release,
+# which Flint never offers as an update.
+on:
+  push:
+    tags: ['*-[0-9]*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - name: Read the plugin and version from the tag
+        id: tag
+        run: |
+          [[ "$GITHUB_REF_NAME" =~ ^(.+)-v?([0-9]+\.[0-9]+\.[0-9]+)(-.+)?$ ]] || { echo "Unexpected tag"; exit 1; }
+          echo "plugin=${BASH_REMATCH[1]}" >> "$GITHUB_OUTPUT"
+          echo "version=${BASH_REMATCH[2]}" >> "$GITHUB_OUTPUT"
+          echo "prerelease=${BASH_REMATCH[3]:+--prerelease}" >> "$GITHUB_OUTPUT"
+      - name: Check the manifest's version
+        working-directory: ${{ steps.tag.outputs.plugin }}
+        run: |
+          declared=$(node -p "require('./manifest.json').version")
+          [ "$declared" = "${{ steps.tag.outputs.version }}" ] || { echo "manifest.json says $declared"; exit 1; }
+      - name: Build
+        if: hashFiles(format('{0}/package.json', steps.tag.outputs.plugin)) != ''
+        working-directory: ${{ steps.tag.outputs.plugin }}
+        run: |
+          npm install
+          npm run check
+          npm test --if-present
+          npm run build
+      - name: Attach the plugin files to a release
+        working-directory: ${{ steps.tag.outputs.plugin }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          files="main.js manifest.json"
+          [ -f styles.css ] && files="$files styles.css"
+          name=$(node -p "require('./manifest.json').name")
+          gh release create "$GITHUB_REF_NAME" $files --title "$name ${GITHUB_REF_NAME#${{ steps.tag.outputs.plugin }}-}" --generate-notes ${{ steps.tag.outputs.prerelease }}

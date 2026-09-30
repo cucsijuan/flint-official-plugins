@@ -1,0 +1,8 @@
+{
+  "id": "counter",
+  "name": "Counter",
+  "version": "1.0.0",
+  "author": "Flint contributors",
+  "description": "Turns ```counter code blocks into a button that counts clicks in the note itself.",
+  "license": "AGPL-3.0-or-later"
+}

@@ -1,0 +1,149 @@
+.jira-view {
+  display: grid;
+  gap: 8px;
+}
+
+.jira-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+}
+
+.jira-status {
+  flex: 1;
+  color: var(--text-faint);
+}
+
+.jira-status.jira-error {
+  color: #d04545;
+}
+
+.jira-bar button,
+.jira-dialog button {
+  padding: 3px 10px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--background-secondary);
+  color: var(--text);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.jira-bar button:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
+.jira-bar .jira-push:not(:disabled),
+.jira-dialog .jira-push {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: white;
+}
+
+.jira-dialog {
+  width: min(640px, 90vw);
+  max-height: 85vh;
+  overflow: auto;
+  padding: 16px 20px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--background);
+  color: var(--text);
+  font-size: 13px;
+}
+
+.jira-dialog::backdrop {
+  background: rgb(0 0 0 / 0.35);
+}
+
+.jira-dialog header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.jira-dialog h2 {
+  flex: 1;
+  margin: 0 0 8px;
+  font-size: 16px;
+}
+
+.jira-dialog h3 {
+  margin: 16px 0 6px;
+  font-size: 13px;
+}
+
+.jira-dialog .jira-close {
+  border: none;
+  background: none;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.jira-facts {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 4px 12px;
+  margin: 8px 0;
+}
+
+.jira-facts dt {
+  color: var(--text-muted);
+}
+
+.jira-facts dd {
+  margin: 0;
+}
+
+.jira-description {
+  white-space: pre-wrap;
+}
+
+.jira-list article {
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.jira-list small,
+.jira-empty,
+.jira-setting small {
+  color: var(--text-faint);
+}
+
+.jira-list p {
+  margin: 4px 0 0;
+  white-space: pre-wrap;
+}
+
+.jira-form {
+  display: grid;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.jira-row {
+  grid-template-columns: 1fr 2fr auto;
+}
+
+.jira-form input,
+.jira-form textarea,
+.jira-form select,
+.jira-setting input,
+.jira-setting select {
+  padding: 4px 8px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--background-secondary);
+  color: var(--text);
+  font: inherit;
+}
+
+.jira-form label,
+.jira-setting {
+  display: grid;
+  gap: 4px;
+  margin-bottom: 8px;
+}
