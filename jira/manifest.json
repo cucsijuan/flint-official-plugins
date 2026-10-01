@@ -1,7 +1,7 @@
 {
   "id": "jira",
   "name": "Jira",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": "Flint contributors",
   "description": "Jira issues in your notes: tables from JQL queries, your issues in the sidebar, creating issues, comments and worklogs. Edits are pushed only when you ask.",
   "license": "AGPL-3.0-or-later",
