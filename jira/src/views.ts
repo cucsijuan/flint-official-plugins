@@ -1,5 +1,6 @@
 import type { DataRow, DataView, DataViewOptions, FlintApi } from 'flint-plugin-api'
 import { type Changes, type Editable, EDITABLE, fieldText } from './changes'
+import { fieldChoices } from './choices'
 import type { Issue, JiraClient } from './client'
 
 const REFRESH_MS = 5 * 60_000
@@ -87,6 +88,10 @@ export function renderIssues(element: HTMLElement, options: IssueViewOptions) {
           onConfigChange: options.onConfigChange,
           onOpen: options.onOpen,
           onEdit: (key, field, value) => changes.stage(key, field, value),
+          choices: async (key, field, query) => {
+            const issue = issues.find((known) => known.key === key)
+            return issue ? fieldChoices(await options.client(), issue, field, query) : null
+          },
           onNew: options.onNew,
         })
       }
